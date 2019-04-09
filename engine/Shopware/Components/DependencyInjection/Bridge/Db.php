@@ -61,6 +61,9 @@ class Db
 
             $conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             $conn->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+            if (isset($dbConfig['ssl_ca'])) {
+                $conn->setAttribute(\PDO::MYSQL_ATTR_SSL_CA, $dbConfig['ssl_ca']);
+            }
 
             // Reset sql_mode "STRICT_TRANS_TABLES" that will be default in MySQL 5.6
             $conn->exec('SET @@session.sql_mode = ""');
