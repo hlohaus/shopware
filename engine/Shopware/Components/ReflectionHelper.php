@@ -35,44 +35,24 @@ class ReflectionHelper
      * Create a class instance from a class name string
      *
      * @param string $className
-     * @param array  $arguments
-     * @param bool   $secure      Make sure that the class is a valid shopware class
-     * @param string $docPath     Optional document root parameter where the class should be found
-     * @param array  $directories an array of directories in which the class should be found
-     *
+     * @param array $arguments
+     * @param string $interface
+     * @return object
+     * @throws \ReflectionException Class could not be found
      * @see \Shopware\Components\ReflectionHelper::verifyClass()
      *
-     * @throws \ReflectionException      Class could not be found
-     * @throws \InvalidArgumentException
-     * @throws \RuntimeException         If the class has no namespace
-     *
-     * @return object
      */
-    public function createInstanceFromNamedArguments($className, $arguments, $secure = true, $docPath = null, array $directories = [])
+    public function createInstanceFromNamedArguments($className, $arguments, $interface)
     {
         $reflectionClass = new \ReflectionClass($className);
 
-        $docPath = $docPath === null ? Shopware()->Container()->getParameter('shopware.app.rootdir') : $docPath;
-
-        $folders = Shopware()->Container()->getParameter('shopware.plugin_directories');
-
-        $folders[] = Shopware()->DocPath('engine_Shopware');
-        $folders[] = Shopware()->DocPath('vendor_shopware_shopware');
-
-        foreach ($folders as $folder) {
-            $directories[] = substr($folder, strlen($docPath));
-        }
-
-        if ($secure) {
-            $this->verifyClass(
-                $reflectionClass,
-                $docPath,
-                $directories
-            );
-        }
 
         if (!$reflectionClass->getConstructor()) {
             return $reflectionClass->newInstance();
+        }
+
+        if (!$reflectionClass->implementsInterface($interface)) {
+            throw new \RuntimeException(sprintf('Class: "%s" doesn\'t implement interface "%s"', $className, $interface));
         }
 
         $constructorParams = $reflectionClass->getConstructor()->getParameters();

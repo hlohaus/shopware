@@ -45,12 +45,13 @@ class LogawareReflectionHelper
     }
 
     /**
-     * @param array  $serialized
+     * @param array $serialized
      * @param string $errorSource
-     *
+     * @param $interface
+     * 
      * @return array
      */
-    public function unserialize($serialized, $errorSource)
+    public function unserialize($serialized, $errorSource, $interface)
     {
         $classes = [];
 
@@ -59,7 +60,7 @@ class LogawareReflectionHelper
             $className = $className[0];
 
             try {
-                $classes[] = $this->reflector->createInstanceFromNamedArguments($className, $arguments);
+                $classes[] = $this->reflector->createInstanceFromNamedArguments($className, $arguments, $interface);
             } catch (\Exception $e) {
                 $this->logger->critical($errorSource . ': ' . $e->getMessage());
             }

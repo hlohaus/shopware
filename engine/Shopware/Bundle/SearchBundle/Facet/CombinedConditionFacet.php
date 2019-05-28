@@ -129,7 +129,7 @@ class CombinedConditionFacet implements FacetInterface
             $className = explode('|', $className);
             $className = $className[0];
             /** @var ConditionInterface $condition */
-            $condition = $reflector->createInstanceFromNamedArguments($className, $arguments);
+            $condition = $reflector->createInstanceFromNamedArguments($className, $arguments, ConditionInterface::class);
             $sortings[] = $condition;
         }
 

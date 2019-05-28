@@ -28,6 +28,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Bundle\SearchBundle\Condition\VariantCondition;
 use Shopware\Bundle\SearchBundle\Criteria;
 use Shopware\Bundle\SearchBundle\Facet\VariantFacet;
+use Shopware\Bundle\SearchBundle\FacetInterface;
 use Shopware\Bundle\StoreFrontBundle\Gateway\DBAL\FieldHelper;
 use Shopware\Bundle\StoreFrontBundle\Gateway\DBAL\Hydrator\CustomListingHydrator;
 use Shopware\Bundle\StoreFrontBundle\Struct\ShopContextInterface;
@@ -119,7 +120,7 @@ class VariantHelper implements VariantHelperInterface
         }
 
         /** @var \Shopware\Bundle\SearchBundle\Facet\VariantFacet|null variantFacet */
-        $variantFacet = $this->reflectionHelper->createInstanceFromNamedArguments(key($arr), reset($arr));
+        $variantFacet = $this->reflectionHelper->createInstanceFromNamedArguments(key($arr), reset($arr), FacetInterface::class);
         $this->variantFacet = $variantFacet;
 
         return $this->variantFacet;
