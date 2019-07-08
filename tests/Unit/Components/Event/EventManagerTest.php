@@ -30,11 +30,12 @@ use PHPUnit\Framework\TestCase;
 
 class EventManagerTest extends TestCase
 {
+    /** @var \Enlight_Event_EventManager */
     private $eventManager;
 
     public function setUp()
     {
-        $this->eventManager = new \Enlight_Event_EventManager();
+        $this->eventManager = new \Enlight_Event_EventManager(true);
     }
 
     public function testCanCreateInstance()
@@ -289,7 +290,7 @@ class EventManagerTest extends TestCase
         static::assertEquals('bar', $values->get(1));
     }
 
-    public function testAddSubscriber()
+    public function testAddSubscriberLegacy()
     {
         $eventSubscriber = new EventSubsciberTest();
         $this->eventManager->addSubscriber($eventSubscriber);
@@ -302,6 +303,38 @@ class EventManagerTest extends TestCase
         $listeners = $this->eventManager->getListeners('eventName3');
         $listener = $listeners[5];
         static::assertEquals(5, $listener->getPosition());
+    }
+
+    public function testAddSubscriber()
+    {
+        $this->eventManager = new \Enlight_Event_EventManager(false);
+
+        $eventSubscriber = new EventSubsciberTest();
+        $this->eventManager->addSubscriber($eventSubscriber);
+
+        static::assertCount(1, $this->eventManager->getListeners('eventName0'));
+        static::assertCount(1, $this->eventManager->getListeners('eventName1'));
+        static::assertCount(1, $this->eventManager->getListeners('eventName2'));
+        static::assertCount(3, $this->eventManager->getListeners('eventName3'));
+
+        $listeners = $this->eventManager->getListeners('eventName3');
+        $listener = array_pop($listeners);
+        static::assertEquals(5, $listener->getPosition());
+    }
+
+    public function testPriority()
+    {
+        $this->eventManager = new \Enlight_Event_EventManager(false);
+
+        $eventSubscriber = new EventPriorityTest();
+        $this->eventManager->addSubscriber($eventSubscriber);
+
+        $listeners = $this->eventManager->getListeners('eventName');
+        static::assertCount(7, $listeners);
+
+        $listener = array_pop($listeners);
+        static::assertEquals(5, $listener->getPosition());
+        static::assertEquals('callback4_0', $listener->getListener()[1]);
     }
 
     public function testRemoveSubscriber()
@@ -348,6 +381,24 @@ class EventSubsciberTest implements SubscriberInterface
                 ['callback3_0', 5],
                 ['callback3_1'],
                 ['callback3_2'],
+            ],
+        ];
+    }
+}
+
+class EventPriorityTest implements SubscriberInterface
+{
+    public static function getSubscribedEvents()
+    {
+        return [
+            'eventName' => [
+                ['callback3_0'],
+                ['callback3_1'],
+                ['callback3_2'],
+                ['callback3_3'],
+                ['callback3_4'],
+                ['callback4_0', 5],
+                ['callback3_5'],
             ],
         ];
     }
